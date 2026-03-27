@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterCantine</title>
+    <script src="main.js" defer></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            padding: 18px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        header h1 { font-size: 1.6em; color: #e94560; letter-spacing: 2px; }
+        header .user-info { display: flex; align-items: center; gap: 12px; font-size: 0.9em; }
+        header .user-info span { color: #aaa; }
+        header button {
+            background: #e94560; color: #fff; border: none; padding: 8px 16px;
+            border-radius: 6px; cursor: pointer; font-size: 0.85em;
+        }
+        header button:hover { background: #c73652; }
+
+        /* AUTH */
+        #authSection {
+            max-width: 400px; margin: 80px auto; background: #16213e;
+            padding: 40px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        #authSection h2 { text-align: center; margin-bottom: 24px; color: #e94560; }
+        #authSection input {
+            width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #333;
+            border-radius: 8px; background: #0f3460; color: #eee; font-size: 1em;
+        }
+        #authSection input::placeholder { color: #777; }
+        #authSection .auth-btn {
+            width: 100%; padding: 14px; background: #e94560; color: #fff;
+            border: none; border-radius: 8px; font-size: 1.05em; cursor: pointer;
+            margin-bottom: 10px;
+        }
+        #authSection .auth-btn:hover { background: #c73652; }
+        #authSection .toggle-link {
+            text-align: center; color: #aaa; cursor: pointer; font-size: 0.9em;
+        }
+        #authSection .toggle-link:hover { color: #e94560; }
+        #authError { color: #ff6b6b; text-align: center; margin-top: 10px; font-size: 0.9em; }
+
+        /* NAV */
+        nav {
+            display: flex; justify-content: center; gap: 8px;
+            padding: 16px; background: #16213e; flex-wrap: wrap;
+        }
+        nav button {
+            padding: 10px 20px; border: 2px solid #e94560; background: transparent;
+            color: #e94560; border-radius: 8px; cursor: pointer; font-size: 0.95em;
+            transition: all 0.2s;
+        }
+        nav button:hover, nav button.active {
+            background: #e94560; color: #fff;
+        }
+
+        /* MAIN CONTENT */
+        #mainContent {
+            max-width: 1000px; margin: 20px auto; padding: 0 20px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .section-title {
+            font-size: 1.4em; margin-bottom: 16px; color: #e94560;
+            border-bottom: 2px solid #333; padding-bottom: 8px;
+        }
+
+        /* MENU CARDS */
+        .menu-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px; margin-top: 16px;
+        }
+
+        .menu-card {
+            background: #16213e; border-radius: 12px; padding: 20px;
+            border: 1px solid #333; transition: transform 0.2s;
+        }
+        .menu-card:hover { transform: translateY(-3px); }
+        .menu-card h3 { color: #fff; margin-bottom: 6px; }
+        .menu-card .description { color: #aaa; font-size: 0.85em; margin-bottom: 10px; }
+        .menu-card .price {
+            font-size: 1.2em; font-weight: bold; color: #4ecca3;
+        }
+        .menu-card .price.discounted { color: #e94560; }
+        .menu-card .original-price {
+            text-decoration: line-through; color: #666; font-size: 0.9em; margin-right: 8px;
+        }
+        .menu-card .stock { color: #aaa; font-size: 0.85em; margin-top: 6px; }
+        .menu-card .discount-badge {
+            display: inline-block; background: #e94560; color: #fff;
+            padding: 2px 10px; border-radius: 12px; font-size: 0.75em; margin-top: 6px;
+        }
+        .menu-card .quantity-ctrl {
+            display: flex; align-items: center; gap: 10px; margin-top: 12px;
+        }
+        .menu-card .quantity-ctrl button {
+            width: 32px; height: 32px; border-radius: 50%; border: 1px solid #e94560;
+            background: transparent; color: #e94560; font-size: 1.1em; cursor: pointer;
+        }
+        .menu-card .quantity-ctrl button:hover { background: #e94560; color: #fff; }
+        .menu-card .quantity-ctrl span { font-size: 1.1em; min-width: 24px; text-align: center; }
+        .category-label {
+            display: inline-block; background: #0f3460; color: #aaa;
+            padding: 2px 8px; border-radius: 4px; font-size: 0.75em; margin-bottom: 8px;
+        }
+
+        /* CART / KURV */
+        #cartBar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #16213e; border-top: 2px solid #e94560;
+            padding: 14px 30px; display: none; justify-content: space-between;
+            align-items: center; z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+        }
+        #cartBar .cart-info { font-size: 1em; }
+        #cartBar .cart-total { font-size: 1.2em; font-weight: bold; color: #4ecca3; }
+        #cartBar button {
+            padding: 12px 28px; background: #4ecca3; color: #1a1a2e;
+            border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer;
+        }
+        #cartBar button:hover { background: #3dbb94; }
+
+        /* RECEIPT */
+        .receipt-card {
+            background: #16213e; border-radius: 12px; padding: 20px;
+            border: 1px solid #333; margin-bottom: 14px;
+        }
+        .receipt-card .receipt-code {
+            font-size: 1.5em; font-weight: bold; color: #4ecca3;
+            letter-spacing: 3px; text-align: center; margin: 10px 0;
+        }
+        .receipt-card .status-badge {
+            display: inline-block; padding: 4px 12px; border-radius: 12px;
+            font-size: 0.8em; font-weight: bold;
+        }
+        .status-reserved { background: #f0a500; color: #1a1a2e; }
+        .status-paid { background: #4ecca3; color: #1a1a2e; }
+        .status-picked_up { background: #666; color: #fff; }
+        .status-cancelled { background: #e94560; color: #fff; }
+
+        /* ADMIN */
+        .admin-card {
+            background: #16213e; border-radius: 12px; padding: 20px;
+            border: 1px solid #333; margin-bottom: 14px;
+        }
+        .admin-card h3 { margin-bottom: 8px; }
+        .admin-card select, .admin-card input[type="number"], .admin-card input[type="date"] {
+            padding: 8px; border-radius: 6px; border: 1px solid #444;
+            background: #0f3460; color: #eee; font-size: 0.95em; margin-right: 8px;
+        }
+        .admin-card button, .admin-btn {
+            padding: 8px 18px; background: #e94560; color: #fff; border: none;
+            border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-top: 6px;
+        }
+        .admin-card button:hover, .admin-btn:hover { background: #c73652; }
+
+        .admin-order-card {
+            background: #0f3460; border-radius: 8px; padding: 16px;
+            margin-bottom: 10px; border-left: 4px solid #e94560;
+        }
+        .admin-order-card.reservation { border-left-color: #f0a500; }
+
+        /* STATUS BAR */
+        .info-bar {
+            background: #0f3460; padding: 12px 20px; border-radius: 8px;
+            margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+        }
+        .info-bar .dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+        }
+        .dot-green { background: #4ecca3; }
+        .dot-yellow { background: #f0a500; }
+        .dot-red { background: #e94560; }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); display: flex;
+            align-items: center; justify-content: center; z-index: 200;
+        }
+        .modal {
+            background: #16213e; border-radius: 16px; padding: 30px;
+            max-width: 500px; width: 90%; text-align: center;
+        }
+        .modal .receipt-code {
+            font-size: 2em; color: #4ecca3; letter-spacing: 4px;
+            margin: 20px 0; font-weight: bold;
+        }
+        .modal button {
+            padding: 12px 30px; background: #4ecca3; color: #1a1a2e;
+            border: none; border-radius: 8px; font-size: 1em; cursor: pointer; margin-top: 10px;
+        }
+
+        .category-tab {
+            padding: 6px 14px; border: 1px solid #e94560; background: transparent;
+            color: #e94560; border-radius: 16px; cursor: pointer; font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        .category-tab:hover, .category-tab.active {
+            background: #e94560; color: #fff;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 600px) {
+            header { flex-direction: column; gap: 10px; text-align: center; }
+            nav { gap: 4px; }
+            nav button { padding: 8px 12px; font-size: 0.8em; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- AUTH SECTION -->
+<div id="authSection">
+    <h2 id="authTitle">Log ind</h2>
+    <div id="signupFields" class="hidden">
+        <input type="text" id="fullNameInput" placeholder="Fulde navn">
+    </div>
+    <input type="email" id="emailInput" placeholder="Email">
+    <input type="password" id="passwordInput" placeholder="Adgangskode">
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">Log ind</button>
+    <div class="toggle-link" id="toggleAuth" onclick="toggleAuthMode()">Har du ingen konto? Opret en her</div>
+    <div id="authError"></div>
+</div>
+
+<!-- APP (hidden until logged in) -->
+<div id="appSection" class="hidden">
+    <header>
+        <h1>BetterCantine</h1>
+        <div class="user-info">
+            <span id="userNameDisplay"></span>
+            <span id="userRoleDisplay"></span>
+            <button onclick="logOut()">Log ud</button>
+        </div>
+    </header>
+
+    <nav id="navBar">
+        <button onclick="showSection('menuSection')" class="active" data-section="menuSection">Menu</button>
+        <button onclick="showSection('ordrerSection')" data-section="ordrerSection">Mine ordrer</button>
+        <!-- Admin-only buttons inserted by JS -->
+    </nav>
+
+    <div id="mainContent">
+
+        <!-- MENU SECTION (student) -->
+        <div id="menuSection" class="section active">
+            <div class="info-bar" id="statusBar"></div>
+            <h2 class="section-title" id="menuTitle">Dagens menu</h2>
+            <div class="menu-grid" id="menuGrid"></div>
+        </div>
+
+        <!-- MINE ORDRER -->
+        <div id="ordrerSection" class="section">
+            <h2 class="section-title">Mine ordrer</h2>
+            <div id="ordrerList"></div>
+        </div>
+
+        <!-- ADMIN: Manage Menu -->
+        <div id="adminMenuSection" class="section">
+            <h2 class="section-title">Administrer menu</h2>
+            <div class="admin-card">
+                <h3>Tilfoej item til dagens menu</h3>
+                <input type="date" id="adminMenuDate">
+                <div id="adminCategoryTabs" style="margin: 10px 0; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+                <select id="adminFoodSelect"></select>
+                <input type="number" id="adminQuantity" placeholder="Antal" min="1" value="10">
+                <button onclick="adminTilfoejMenu()">Tilfoej</button>
+            </div>
+            <h3 style="margin: 20px 0 10px; color: #e94560;">Menu for valgt dato:</h3>
+            <div id="adminMenuGrid"></div>
+        </div>
+
+        <!-- ADMIN: View Orders -->
+        <div id="adminOrdrerSection" class="section">
+            <h2 class="section-title">Alle ordrer i dag</h2>
+            <div id="adminOrdrerList"></div>
+        </div>
+
+        <!-- ADMIN: Discounts -->
+        <div id="adminDiscountSection" class="section">
+            <h2 class="section-title">Sæt rabat</h2>
+            <div id="discountGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- CART BAR -->
+<div id="cartBar">
+    <div>
+        <span class="cart-info" id="cartInfo">0 varer</span>
+        &nbsp;&mdash;&nbsp;
+        <span class="cart-total" id="cartTotal">0.00 DKK</span>
+    </div>
+    <button onclick="placeOrder()">Betal &amp; bestil</button>
+</div>
+
+</body>
+</html>
