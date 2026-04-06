@@ -1,6 +1,6 @@
 import datalag from './cantineDatalag.js';
 
-// laget imellem praesentationslag (routing) og datalag
+// laget imellem præsentationslag (routing) og datalag
 
 async function signUp(email, password, fullName) {
     return await datalag.signUp(email, password, fullName);
@@ -61,8 +61,8 @@ async function hentAlleFoodItems() {
     return items || [];
 }
 
-async function tilfoejTilDagensMenu(foodItemId, menuDate, totalQuantity) {
-    return await datalag.tilfoejTilDagensMenu(foodItemId, menuDate, totalQuantity);
+async function tilføjTilDagensMenu(foodItemId, menuDate, totalQuantity) {
+    return await datalag.tilføjTilDagensMenu(foodItemId, menuDate, totalQuantity);
 }
 
 async function fjernFraDagensMenu(dailyMenuId) {
@@ -70,6 +70,9 @@ async function fjernFraDagensMenu(dailyMenuId) {
 }
 
 async function opdaterDiscount(dailyMenuId, discountedQuantity) {
+    if (!erKantinenAaben()) {
+        return { error: 'Rabatter kan kun sættes i kantinens åbningstid (07:00-13:45)' };
+    }
     return await datalag.opdaterDiscount(dailyMenuId, discountedQuantity);
 }
 
@@ -99,11 +102,95 @@ async function hentKategorier() {
     return (await datalag.hentKategorier()) || [];
 }
 
+async function annullerIkkeAfhentedeOrdrer() {
+    const dato = getDatoIdag();
+    const result = await datalag.annullerIkkeAfhentedeOrdrer(dato);
+    if (result && result.length > 0) {
+        console.log('Annullerede ' + result.length + ' ikke-afhentede ordrer for ' + dato);
+    }
+    return result;
+}
+
+async function hentSalgsStatistik(startDato, slutDato) {
+    const raw = (await datalag.hentSalgsStatistik(startDato, slutDato)) || [];
+
+    // aggreger rå order_items til: per food_item per dato med alle metrics
+    const map = {};
+    const ordersByDate = {};
+
+    for (const row of raw) {
+        const dm = row.daily_menu;
+        if (!dm || !dm.food_items) continue;
+        const fi = dm.food_items;
+        const order = row.orders;
+        const key = fi.id + '|' + dm.menu_date;
+
+        if (!map[key]) {
+            map[key] = {
+                food_item_id: fi.id,
+                item_name: fi.name,
+                category_name: fi.food_categories ? fi.food_categories.name : '',
+                menu_date: dm.menu_date,
+                total_sold: 0, total_revenue: 0,
+                discounted_sold: 0, discounted_revenue: 0,
+                full_price_sold: 0, full_price_revenue: 0,
+                reservations: 0, direct_purchases: 0,
+                picked_up: 0, cancelled: 0
+            };
+        }
+
+        const isCancelled = order && order.status === 'cancelled';
+
+        if (isCancelled) {
+            map[key].cancelled += row.quantity;
+        } else {
+            map[key].total_sold += row.quantity;
+            map[key].total_revenue += row.quantity * Number(row.unit_price);
+
+            if (row.is_discounted) {
+                map[key].discounted_sold += row.quantity;
+                map[key].discounted_revenue += row.quantity * Number(row.unit_price);
+            } else {
+                map[key].full_price_sold += row.quantity;
+                map[key].full_price_revenue += row.quantity * Number(row.unit_price);
+            }
+
+            if (order && order.is_reservation) {
+                map[key].reservations += row.quantity;
+            } else {
+                map[key].direct_purchases += row.quantity;
+            }
+
+            if (order && order.status === 'picked_up') {
+                map[key].picked_up += row.quantity;
+            }
+        }
+
+        // track unique orders per date
+        const dateKey = dm.menu_date;
+        if (!ordersByDate[dateKey]) ordersByDate[dateKey] = new Set();
+        const oid = (order && order.id) || row.order_id;
+        if (oid) ordersByDate[dateKey].add(oid);
+    }
+
+    const items = Object.values(map);
+    items.sort((a, b) => a.menu_date.localeCompare(b.menu_date) || a.item_name.localeCompare(b.item_name));
+
+    // daily order counts
+    const dailyOrders = {};
+    for (const [date, set] of Object.entries(ordersByDate)) {
+        dailyOrders[date] = set.size;
+    }
+
+    return { items, dailyOrders };
+}
+
 export default {
     signUp, signIn,
     hentMenu, hentMenuForDato, hentAlleFoodItems,
-    tilfoejTilDagensMenu, opdaterDiscount, fjernFraDagensMenu,
+    tilføjTilDagensMenu, opdaterDiscount, fjernFraDagensMenu,
     opretOrdre, hentMineOrdrer, hentAlleOrdrer, opdaterOrdreStatus,
     hentKategorier, getDatoIdag, getDatoIMorgen,
-    erReservationsperiode, erKantinenAaben, erKantinenLukket
+    erReservationsperiode, erKantinenAaben, erKantinenLukket,
+    hentSalgsStatistik, annullerIkkeAfhentedeOrdrer
 };

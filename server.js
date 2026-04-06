@@ -49,7 +49,7 @@ app.get('/api/kategorier', async (req, res) => {
 app.post('/api/menu/tilfoej', async (req, res) => {
     try {
         const { foodItemId, menuDate, totalQuantity } = req.body;
-        res.json(await servicelag.tilfoejTilDagensMenu(foodItemId, menuDate, totalQuantity));
+        res.json(await servicelag.tilføjTilDagensMenu(foodItemId, menuDate, totalQuantity));
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
@@ -61,7 +61,9 @@ app.delete('/api/menu/:dailyMenuId', async (req, res) => {
 app.post('/api/menu/discount', async (req, res) => {
     try {
         const { dailyMenuId, discountedQuantity } = req.body;
-        res.json(await servicelag.opdaterDiscount(dailyMenuId, discountedQuantity));
+        const result = await servicelag.opdaterDiscount(dailyMenuId, discountedQuantity);
+        if (result && result.error) return res.status(400).json({ error: result.error });
+        res.json(result);
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
@@ -92,4 +94,25 @@ app.post('/api/ordre/status', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-app.listen(port, () => { console.log('BetterCantine koerer paa port ' + port); });
+// STATISTIK ROUTES
+app.get('/api/stats/sales', async (req, res) => {
+    try {
+        const { from, to } = req.query;
+        if (!from || !to) return res.status(400).json({ error: 'Mangler from og to parametre' });
+        res.json(await servicelag.hentSalgsStatistik(from, to));
+    } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
+});
+
+// Auto-cancel unpicked orders when canteen closes (13:45)
+let lastCancelDate = null;
+setInterval(async () => {
+    if (!servicelag.erKantinenAaben() && servicelag.erReservationsperiode()) {
+        const dato = servicelag.getDatoIdag();
+        if (lastCancelDate !== dato) {
+            lastCancelDate = dato;
+            await servicelag.annullerIkkeAfhentedeOrdrer();
+        }
+    }
+}, 60 * 1000);
+
+app.listen(port, () => { console.log('BetterCantine kører på port ' + port); });
