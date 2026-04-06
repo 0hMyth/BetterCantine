@@ -36,8 +36,7 @@ logs/
 # OS
 Thumbs.db
 
-.claude
-.old_project
-.Rapport
-.PROGRAM_DESCRIPTION.md
-.README.md
+.claude/
+old_project/
+Rapport/
+PROGRAM_DESCRIPTION.md
