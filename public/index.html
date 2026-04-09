@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterCantine</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+
+<!-- AUTH SECTION -->
+<div id="authSection">
+    <h2 id="authTitle">Log ind</h2>
+    <div id="signupFields" class="hidden">
+        <input type="text" id="fullNameInput" placeholder="Fulde navn">
+    </div>
+    <input type="email" id="emailInput" placeholder="Email">
+    <input type="password" id="passwordInput" placeholder="Adgangskode">
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">Log ind</button>
+    <div class="toggle-link" id="toggleAuth" onclick="toggleAuthMode()">Har du ingen konto? Opret en her</div>
+    <div id="authError"></div>
+</div>
+
+<!-- APP (hidden until logged in) -->
+<div id="appSection" class="hidden">
+    <header>
+        <h1>BetterCantine</h1>
+        <div class="user-info">
+            <span id="userNameDisplay"></span>
+            <span id="userRoleDisplay"></span>
+            <button onclick="logOut()">Log ud</button>
+        </div>
+    </header>
+
+    <nav id="navBar">
+        <button onclick="showSection('buySection')" class="active" data-section="buySection">Køb</button>
+        <button onclick="showSection('reserveSection')" data-section="reserveSection">Reserver</button>
+        <button onclick="showSection('ordrerSection')" data-section="ordrerSection">Mine ordrer</button>
+    </nav>
+
+    <div id="mainContent">
+
+        <!-- BUY SECTION (canteen open) -->
+        <div id="buySection" class="section active">
+            <div class="info-bar" id="buyStatusBar"></div>
+            <h2 class="section-title" id="buyTitle">Køb - Dagens menu</h2>
+            <!-- Shown when canteen is closed -->
+            <div id="buyClosedMsg" class="closed-message hidden">
+                <div class="closed-icon">&#10060;</div>
+                <h3>Kantinen er lukket</h3>
+                <p>Kantinen har åbent mellem 07:00 og 13:45. Besøg <a href="#" onclick="showSection('reserveSection');return false;">reservation-siden</a> hvis du gerne vil reservere mad til i morgen.</p>
+            </div>
+            <!-- Shown when canteen is open -->
+            <div id="buyContent" class="hidden">
+                <div id="buyCategoryTabs" class="menu-category-tabs"></div>
+                <div class="menu-split-layout">
+                    <div class="menu-item-list" id="buyItemList"></div>
+                    <div class="menu-detail-panel" id="buyDetailPanel">
+                        <div class="detail-placeholder">Hold musen over en ret for at se detaljer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESERVE SECTION (canteen closed / reservation period) -->
+        <div id="reserveSection" class="section">
+            <div class="info-bar" id="reserveStatusBar"></div>
+            <h2 class="section-title" id="reserveTitle">Reserver - Menu for i morgen</h2>
+            <!-- Shown when canteen is open (no reservation needed) -->
+            <div id="reserveOpenMsg" class="closed-message hidden">
+                <div class="closed-icon" style="filter:hue-rotate(100deg);">&#9989;</div>
+                <h3>Kantinen er åben lige nu!</h3>
+                <p>Du kan købe mad direkte. Gå til <a href="#" onclick="showSection('buySection');return false;">køb-siden</a> for at bestille.</p>
+            </div>
+            <!-- Shown when reservation is possible -->
+            <div id="reserveContent" class="hidden">
+                <div id="reserveCategoryTabs" class="menu-category-tabs"></div>
+                <div class="menu-split-layout">
+                    <div class="menu-item-list" id="reserveItemList"></div>
+                    <div class="menu-detail-panel" id="reserveDetailPanel">
+                        <div class="detail-placeholder">Hold musen over en ret for at se detaljer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MINE ORDRER -->
+        <div id="ordrerSection" class="section">
+            <h2 class="section-title">Mine ordrer</h2>
+            <div id="ordrerList"></div>
+        </div>
+
+        <!-- ADMIN: Manage Menu -->
+        <div id="adminMenuSection" class="section">
+            <h2 class="section-title">Administrer menu</h2>
+            <div class="admin-card">
+                <h3>Tilføj item til dagens menu</h3>
+                <input type="date" id="adminMenuDate">
+                <div id="adminCategoryTabs" style="margin: 10px 0; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+                <select id="adminFoodSelect"></select>
+                <input type="number" id="adminQuantity" placeholder="Antal" min="1" value="10">
+                <button onclick="adminTilfoejMenu()">Tilføj</button>
+            </div>
+            <h3 style="margin: 20px 0 10px; color: var(--text);">Menu for valgt dato:</h3>
+            <div id="adminMenuGrid"></div>
+        </div>
+
+        <!-- ADMIN: View Orders -->
+        <div id="adminOrdrerSection" class="section">
+            <h2 class="section-title">Alle ordrer i dag</h2>
+            <div id="adminOrdrerList"></div>
+        </div>
+
+        <!-- ADMIN: Discounts -->
+        <div id="adminDiscountSection" class="section">
+            <h2 class="section-title">Sæt rabat</h2>
+            <div id="discountGrid"></div>
+        </div>
+
+        <!-- ADMIN: Sales Statistics -->
+        <div id="adminStatsSection" class="section">
+            <h2 class="section-title">Salgsstatistik</h2>
+
+            <!-- Controls -->
+            <div class="stats-controls">
+                <!-- Row 1: Period + Date picker -->
+                <div class="stats-controls-row">
+                    <div class="stats-period-btns">
+                        <span style="color:var(--text-muted);font-size:0.9em;margin-right:6px;font-weight:500;">Periode:</span>
+                        <button class="stats-period-btn active" data-days="1" onclick="setStatsPeriod(1,this)">1 dag</button>
+                        <button class="stats-period-btn" data-days="7" onclick="setStatsPeriod(7,this)">1 uge</button>
+                        <button class="stats-period-btn" data-days="30" onclick="setStatsPeriod(30,this)">1 måned</button>
+                        <button class="stats-period-btn" data-days="180" onclick="setStatsPeriod(180,this)">6 måneder</button>
+                        <button class="stats-period-btn" data-days="365" onclick="setStatsPeriod(365,this)">1 år</button>
+                    </div>
+                    <div class="stats-options">
+                        <label>Dato:
+                            <input type="date" id="statsDatePicker" onchange="onStatsDatePick()">
+                        </label>
+                    </div>
+                </div>
+                <!-- Row 2: Metric selector -->
+                <div class="stats-controls-row">
+                    <div class="stats-options">
+                        <label>Vis:
+                            <select id="statsMetric" onchange="renderChart()">
+                                <option value="total_sold">Antal solgt</option>
+                                <option value="total_revenue">Omsætning (DKK)</option>
+                                <option value="discounted_sold">Rabat-salg (antal)</option>
+                                <option value="discounted_revenue">Rabat-omsætning (DKK)</option>
+                                <option value="full_price_sold">Fuld pris (antal)</option>
+                                <option value="reservations">Reservationer</option>
+                                <option value="direct_purchases">Direkte køb</option>
+                                <option value="picked_up">Afhentet</option>
+                                <option value="cancelled">Annulleret</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item selector -->
+            <div class="stats-selector">
+                <div class="stats-selector-header">
+                    <h3>Vælg items at vise</h3>
+                    <div>
+                        <button class="stats-btn stats-btn-sm" onclick="selectAllItems()">Vælg alle</button>
+                        <button class="stats-btn stats-btn-sm stats-btn-reset" onclick="resetItemSelection()">Nulstil</button>
+                    </div>
+                </div>
+                <div id="statsItemList" class="stats-item-list"></div>
+                <div id="statsNoItems" style="color:var(--text-light);font-size:0.9em;padding:8px 0;display:none;">Ingen data i denne periode.</div>
+            </div>
+
+            <!-- Chart -->
+            <div class="stats-chart-wrap">
+                <div id="statsChart"></div>
+                <div id="statsLegend" class="stats-legend"></div>
+            </div>
+
+            <!-- Summary -->
+            <div id="statsSummary" class="stats-summary"></div>
+        </div>
+    </div>
+</div>
+
+<!-- CART BAR -->
+<div id="cartBar">
+    <div>
+        <span class="cart-info" id="cartInfo">0 varer</span>
+        &mdash;
+        <span class="cart-total" id="cartTotal">0.00 DKK</span>
+    </div>
+    <button onclick="placeOrder()">Betal &amp; bestil</button>
+</div>
+
+</body>
+</html>
