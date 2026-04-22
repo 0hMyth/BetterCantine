@@ -12,7 +12,6 @@ const supabase = createClient(
     process.env.SUPABASE_KEY
 );
 
-// gøre supabase-objektet muligt at importere
 export { supabase };
 
 // anvendes i datalag-funktioner som taler med Supabase-databasen

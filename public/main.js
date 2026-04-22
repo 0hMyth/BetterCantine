@@ -292,36 +292,35 @@ function showDetailPanel(panelId, fi) {
 
     var html = '<div class="detail-panel-content">';
     html += '<h3>' + fi.name + '</h3>';
-    html += '<div class="detail-desc">' + (fi.description || 'Ingen beskrivelse.') + '</div>';
 
-    if (hasExtraInfo) {
-        // Halal status
-        if (isHalal === true) {
-            html += '<div class="detail-row"><span class="detail-label">Halal:</span><span class="detail-halal-badge">Halal</span></div>';
-        } else if (isHalal === false) {
-            html += '<div class="detail-row"><span class="detail-label">Halal:</span><span class="detail-not-halal-badge">Ikke halal</span></div>';
-        }
+    // Halal status
+    if (isHalal === true) {
+        html += '<div class="detail-row"><span class="detail-label">Halal:</span><span class="detail-halal-badge">Halal</span></div>';
+    } else if (isHalal === false) {
+        html += '<div class="detail-row"><span class="detail-label">Halal:</span><span class="detail-not-halal-badge">Ikke halal</span></div>';
+    }
 
-        // Allergens
-        if (allergens) {
-            var tags = allergens.split(',').map(function(a) {
-                return '<span class="detail-allergen-tag">' + a.trim() + '</span>';
-            }).join(' ');
-            html += '<div class="detail-row"><span class="detail-label">Allergener:</span><span class="detail-value">' + tags + '</span></div>';
-        }
+    // Allergens
+    if (allergens) {
+        var tags = allergens.split(',').map(function(a) {
+            return '<span class="detail-allergen-tag">' + a.trim() + '</span>';
+        }).join(' ');
+        html += '<div class="detail-row"><span class="detail-label">Allergener:</span><span class="detail-value">' + tags + '</span></div>';
+    } else {
+        html += '<div class="detail-row"><span class="detail-label">Allergener:</span><span class="detail-value" style="color:var(--text-muted);">Ingen</span></div>';
+    }
 
-        // Price info
-        html += '<div class="detail-row"><span class="detail-label">Pris:</span><span class="detail-value">' +
-            Number(fi.base_price).toFixed(2) + ' DKK</span></div>';
-        if (Number(fi.discount_price) > 0 && Number(fi.discount_price) < Number(fi.base_price)) {
-            html += '<div class="detail-row"><span class="detail-label">Rabatpris:</span><span class="detail-value" style="color:var(--danger);font-weight:600;">' +
-                Number(fi.discount_price).toFixed(2) + ' DKK</span></div>';
-        }
+    // Price info
+    html += '<div class="detail-row"><span class="detail-label">Pris:</span><span class="detail-value">' +
+        Number(fi.base_price).toFixed(2) + ' DKK</span></div>';
+    if (Number(fi.discount_price) > 0 && Number(fi.discount_price) < Number(fi.base_price)) {
+        html += '<div class="detail-row"><span class="detail-label">Rabatpris:</span><span class="detail-value" style="color:var(--danger);font-weight:600;">' +
+            Number(fi.discount_price).toFixed(2) + ' DKK</span></div>';
+    }
 
-        // Extra info
-        if (extraInfo) {
-            html += '<div class="detail-extra">' + extraInfo + '</div>';
-        }
+    // Extra info
+    if (extraInfo) {
+        html += '<div class="detail-extra">' + extraInfo + '</div>';
     }
 
     html += '</div>';
