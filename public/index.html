@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BetterCantine — smartere frokost</title>
-    <meta name="description" content="BetterCantine — bestil din frokost fra mobilen og spring køen over.">
+    <title>BetterCantine — ingen kø, bare frokost</title>
+    <meta name="description" content="Bestil frokosten fra mobilen, spring køen over, se allergener direkte på retten. BetterCantine — HTX-kantinen uden mystik.">
     <meta name="theme-color" content="#2E7D32">
 
-    <!-- Preconnect + Inter font (replaces Segoe UI) -->
+    <!-- Preconnect + Inter font (with tabular & stylistic features) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 
     <link rel="stylesheet" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -21,17 +21,27 @@
 <!-- Inline SVG logo sprite (reusable via <use>) -->
 <svg width="0" height="0" aria-hidden="true" style="position:absolute;">
     <defs>
-        <!-- Brand logo: fork + "B" motif in a rounded square -->
+        <!-- Brand logo: fork + "B" motif — monoline, subtle green gradient base + off-centre orange B -->
         <symbol id="bc-logo" viewBox="0 0 48 48">
-            <rect x="1" y="1" width="46" height="46" rx="12" fill="#2E7D32"/>
+            <defs>
+                <linearGradient id="bc-logo-grad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#2E7D32"/>
+                    <stop offset="100%" stop-color="#1B5E20"/>
+                </linearGradient>
+            </defs>
+            <rect x="1" y="1" width="46" height="46" rx="13" ry="12" fill="url(#bc-logo-grad)"/>
+            <!-- Highlight wash top-left (not pure flat fill — AI-tell fix) -->
+            <rect x="1" y="1" width="46" height="20" rx="13" ry="12" fill="#FFFFFF" opacity="0.08"/>
             <!-- Fork tines -->
             <path d="M14 10 v10 M18 10 v10 M22 10 v10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
             <!-- Fork handle -->
             <path d="M14 20 h8 v4 a4 4 0 0 1 -4 4 h0 a4 4 0 0 1 -4 -4 z" fill="#FFFFFF"/>
             <path d="M18 28 v10" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- "B" letter -->
+            <!-- "B" letter, slightly off-centre (x=28.5) for crafted balance -->
             <path d="M28 14 h6 a4 4 0 0 1 0 8 h-6 z M28 22 h7 a4 4 0 0 1 0 8 h-7 z M28 14 v16"
                   stroke="#FF6F00" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Tiny orange dot — a signature mark, not stock -->
+            <circle cx="39" cy="12" r="1.4" fill="#FF6F00"/>
         </symbol>
         <!-- Nav icons -->
         <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></symbol>
@@ -40,28 +50,57 @@
         <symbol id="ic-orders" viewBox="0 0 24 24"><path d="M6 4h10l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M8 12h8 M8 16h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
         <symbol id="ic-profile" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 20c1-4 5-6 8-6s7 2 8 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
         <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12 M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-        <!-- Empty state illustrations -->
+        <!-- Branded monoline tick — replaces stock emoji ✓ in chips/badges -->
+        <symbol id="ic-tick" viewBox="0 0 16 16"><path d="M3 8.5 l3 3 l7 -7.5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <!-- Small leaf — subtle brand motif usable in chips/empty-states -->
+        <symbol id="ic-leaf" viewBox="0 0 16 16"><path d="M2 14 q0 -10 12 -12 q0 8 -12 12 z" fill="currentColor"/><path d="M2 14 q4 -5 9 -8" stroke="#FFFFFF" stroke-width="1" fill="none" stroke-linecap="round" opacity="0.5"/></symbol>
+        <!-- Empty state illustrations — monoline, brand-tinted, asymmetric, hand-drawn feel -->
+        <!-- Empty menu: a plate with a tiny sprig, tilted & off-centre -->
         <symbol id="empty-menu" viewBox="0 0 200 140">
-            <rect x="30" y="30" width="140" height="90" rx="12" fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2"/>
-            <circle cx="70" cy="68" r="14" fill="#D5F0DB"/>
-            <rect x="95" y="58" width="60" height="6" rx="3" fill="#C9D6E2"/>
-            <rect x="95" y="70" width="40" height="6" rx="3" fill="#D8DFE8"/>
-            <path d="M60 95h80" stroke="#D8DFE8" stroke-width="2" stroke-linecap="round"/>
-            <path d="M60 105h50" stroke="#D8DFE8" stroke-width="2" stroke-linecap="round"/>
+            <!-- Light wash backdrop — not a hard rect -->
+            <ellipse cx="100" cy="90" rx="78" ry="14" fill="#F1F8F1" opacity="0.8"/>
+            <!-- Plate outer ring, slightly off-centre (x=98 not 100) -->
+            <circle cx="98" cy="72" r="42" fill="#FBFCF8" stroke="#A5D6A7" stroke-width="2"/>
+            <circle cx="98" cy="72" r="32" fill="none" stroke="#C8E6CA" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.7"/>
+            <!-- A single leaf/sprig in the centre — empty but friendly, not sterile -->
+            <path d="M95 68 q6 -10 16 -8 q-4 10 -14 12 z" fill="#A5D6A7" opacity="0.85"/>
+            <path d="M96 68 q5 -3 13 -6" stroke="#2E7D32" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+            <!-- Tiny orange dot — signature accent -->
+            <circle cx="138" cy="46" r="2.2" fill="#FF6F00"/>
+            <!-- Stray wavy line, hand-drawn feel -->
+            <path d="M44 112 q10 -4 20 0 t20 0" stroke="#C8E6CA" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
         </symbol>
+        <!-- Empty orders: tilted receipt with torn bottom edge -->
         <symbol id="empty-orders" viewBox="0 0 200 140">
-            <path d="M50 40h80l18 20v55a8 8 0 0 1-8 8H50a8 8 0 0 1-8-8V48a8 8 0 0 1 8-8z"
-                  fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M130 40l18 20h-18z" fill="#D5DEE8"/>
-            <path d="M60 78h70 M60 92h60 M60 106h40" stroke="#C9D6E2" stroke-width="3" stroke-linecap="round"/>
+            <!-- Tilted receipt, slight rotation baked into path (not transform) -->
+            <g transform="rotate(-4 100 70)">
+                <path d="M66 28 h68 v72
+                         l-6 6 l-6 -6 l-6 6 l-6 -6 l-6 6 l-6 -6 l-6 6 l-6 -6 l-6 6 l-6 -6 l-6 6 l-6 -6 z"
+                      fill="#FBFCF8" stroke="#A5D6A7" stroke-width="2" stroke-linejoin="round"/>
+                <!-- Hand-drawn dashes instead of neat lines -->
+                <path d="M76 46 q8 -2 18 0 t24 0" stroke="#66BB6A" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                <path d="M76 60 q7 -2 14 0 t18 0" stroke="#A5D6A7" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                <path d="M76 74 q6 -2 12 0 t12 0" stroke="#C8E6CA" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+            </g>
+            <!-- Tiny orange pencil mark -->
+            <circle cx="44" cy="30" r="2.5" fill="#FF6F00"/>
+            <path d="M44 30 q-10 10 -14 24" stroke="#FF6F00" stroke-width="1.4" fill="none" stroke-linecap="round" opacity="0.4"/>
         </symbol>
+        <!-- Empty stats: uneven rising bars, hand-drawn baseline -->
         <symbol id="empty-stats" viewBox="0 0 200 140">
-            <rect x="30" y="30" width="140" height="90" rx="12" fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2"/>
-            <rect x="50" y="80" width="18" height="28" rx="3" fill="#C9D6E2"/>
-            <rect x="76" y="65" width="18" height="43" rx="3" fill="#B8C5D6"/>
-            <rect x="102" y="85" width="18" height="23" rx="3" fill="#C9D6E2"/>
-            <rect x="128" y="55" width="18" height="53" rx="3" fill="#A8B7CC"/>
-            <path d="M45 108h110" stroke="#7A8A9E" stroke-width="2" stroke-linecap="round"/>
+            <!-- Baseline, drawn as a gentle wave, not a ruler-straight line -->
+            <path d="M30 108 q20 -2 40 0 t40 0 t60 0" stroke="#2E7D32" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+            <!-- Bars with slightly off-axis tops (each rotated a hair) -->
+            <g>
+                <rect x="46" y="78" width="20" height="30" rx="4" fill="#A5D6A7" transform="rotate(-1 56 93)"/>
+                <rect x="76" y="60" width="20" height="48" rx="4" fill="#66BB6A" transform="rotate(1 86 84)"/>
+                <rect x="106" y="82" width="20" height="26" rx="4" fill="#A5D6A7" transform="rotate(-1 116 95)"/>
+                <rect x="136" y="46" width="20" height="62" rx="4" fill="#2E7D32" transform="rotate(1 146 77)"/>
+            </g>
+            <!-- Trend arrow flourish in orange -->
+            <path d="M42 40 q30 -8 62 -4 t60 -16" stroke="#FF6F00" stroke-width="2" fill="none"
+                  stroke-linecap="round" stroke-dasharray="4 3" opacity="0.6"/>
+            <path d="M158 16 l8 4 -4 8" stroke="#FF6F00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </symbol>
     </defs>
 </svg>
@@ -71,7 +110,7 @@
     <div class="auth-brand">
         <svg class="auth-logo" width="56" height="56" aria-hidden="true"><use href="#bc-logo"/></svg>
         <h2 id="authTitle">Log ind</h2>
-        <p class="auth-tagline">BetterCantine — smartere frokost</p>
+        <p class="auth-tagline">Smartere frokost. Ingen kø.</p>
     </div>
     <div id="signupFields" class="hidden">
         <label for="fullNameInput" class="sr-only">Fulde navn</label>
@@ -302,26 +341,39 @@
         <button class="onboarding-skip" id="onbSkipBtn" aria-label="Spring introduktion over">Spring over</button>
         <div class="onboarding-slide" data-slide="0">
             <svg width="96" height="96" aria-hidden="true"><use href="#bc-logo"/></svg>
-            <h2 id="onbTitle">Velkommen til BetterCantine</h2>
-            <p>Bestil, reservér og afhent din frokost — alt fra din mobil.</p>
+            <h2 id="onbTitle">Ingen kø. Ingen mystik.</h2>
+            <p>Bare frokost. Bestilt fra mobilen, klar når du er.</p>
         </div>
         <div class="onboarding-slide hidden" data-slide="1">
             <svg width="140" height="120" viewBox="0 0 140 120" aria-hidden="true">
-                <rect x="40" y="20" width="60" height="90" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-                <circle cx="70" cy="100" r="4" fill="#2E7D32"/>
-                <path d="M55 45h30 M55 55h22 M55 70h18" stroke="#2E7D32" stroke-width="3" stroke-linecap="round"/>
-                <path d="M108 60l14 0 M108 55l14 5 -14 5" stroke="#FF6F00" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Monoline phone + arrow — asymmetric, hand-drawn feel (slight angle, rough corners) -->
+                <rect x="40" y="18" width="58" height="92" rx="11" ry="9" fill="#F1F8F1" stroke="#2E7D32" stroke-width="2"/>
+                <circle cx="69" cy="102" r="3.5" fill="#2E7D32"/>
+                <!-- Wavy receipt lines — not straight -->
+                <path d="M52 42 q6 -2 12 0 t12 0 t12 0" stroke="#2E7D32" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+                <path d="M52 55 q5 -2 10 0 t10 0" stroke="#2E7D32" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+                <path d="M52 68 q5 -2 10 0 t10 0 t10 0" stroke="#66BB6A" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+                <!-- Arrow pointing to pickup -->
+                <path d="M106 62 l18 0 m-6 -6 l6 6 -6 6" stroke="#FF6F00" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Tiny checkmark dot -->
+                <circle cx="129" cy="62" r="4" fill="#FF6F00" opacity="0.15"/>
             </svg>
-            <h2>Spring køen over</h2>
-            <p>Bestil fra mobilen og hent maden direkte i kantinen med din kvitteringskode.</p>
+            <h2>Spring køen. Behold frikvarteret.</h2>
+            <p>Bestil fra bordet, gå forbi køen, scan koden i kantinen. Frokosten tager længere at spise end at bestille.</p>
         </div>
         <div class="onboarding-slide hidden" data-slide="2">
             <svg width="140" height="120" viewBox="0 0 140 120" aria-hidden="true">
-                <circle cx="70" cy="60" r="40" fill="#FFF3E0" stroke="#FF6F00" stroke-width="2"/>
-                <path d="M55 62l10 10 20 -22" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Off-centre checkmark in orange ring — not the symmetrical AI default -->
+                <circle cx="68" cy="60" r="40" fill="none" stroke="#FF6F00" stroke-width="2" stroke-dasharray="3 4" opacity="0.55"/>
+                <circle cx="68" cy="60" r="32" fill="#FFF8EF"/>
+                <path d="M53 62 l10 10 22 -24" stroke="#2E7D32" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Tiny sparkle dots, asymmetric placement -->
+                <circle cx="108" cy="32" r="2.5" fill="#FF6F00"/>
+                <circle cx="115" cy="40" r="1.5" fill="#2E7D32"/>
+                <circle cx="30" cy="92" r="2" fill="#2E7D32" opacity="0.6"/>
             </svg>
-            <h2>Klar? Bestil din første ret</h2>
-            <p>Du kan altid se allergener, priser og rabatter direkte i menuen.</p>
+            <h2>Du kan se hvad der er i maden.</h2>
+            <p>Allergener og halal-mærkning står direkte på retten. Ingen små bogstaver, ingen ekstra klik.</p>
         </div>
         <div class="onboarding-dots" aria-hidden="true">
             <span class="dot active" data-dot="0"></span>

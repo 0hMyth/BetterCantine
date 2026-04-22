@@ -49,13 +49,19 @@ function showToast(message, variant, title) {
     var container = document.getElementById('toastContainer');
     if (!container) return;
     variant = variant || 'info';
-    var icons = { success: '✓', error: '!', info: 'i', warning: '!' };
+    // Monoline branded glyphs — not stock single-char emojis
+    var iconMarkup = {
+        success: '<svg width="12" height="12" aria-hidden="true"><use href="#ic-tick"/></svg>',
+        error:   '<span aria-hidden="true">!</span>',
+        info:    '<span aria-hidden="true">i</span>',
+        warning: '<span aria-hidden="true">!</span>'
+    };
     var toast = document.createElement('div');
     toast.className = 'toast toast-' + variant;
     toast.setAttribute('role', variant === 'error' ? 'alert' : 'status');
     var titleHtml = title ? '<strong>' + title + '</strong>' : '';
     toast.innerHTML =
-        '<span class="toast-icon" aria-hidden="true">' + (icons[variant] || 'i') + '</span>' +
+        '<span class="toast-icon" aria-hidden="true">' + (iconMarkup[variant] || iconMarkup.info) + '</span>' +
         '<div class="toast-body">' + titleHtml + message + '</div>' +
         '<button class="toast-close" aria-label="Luk besked">' +
         '<svg width="16" height="16" aria-hidden="true"><use href="#ic-close"/></svg></button>';
@@ -465,8 +471,8 @@ function renderMenuPanel(mode, menu, activeCategory) {
         listContainer.innerHTML =
             '<div class="empty-state">' +
             '<svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-menu"/></svg>' +
-            '<h3>Ingen retter i denne kategori</h3>' +
-            '<p>Prøv at vælge en anden kategori eller kom tilbage senere.</p>' +
+            '<h3>Tomt her i dag</h3>' +
+            '<p>Prøv en anden kategori — ellers er køkkenet snart klar med næste runde.</p>' +
             '</div>';
         return;
     }
@@ -500,7 +506,8 @@ function renderMenuPanel(mode, menu, activeCategory) {
             });
         }
         if (fi.is_halal === true) {
-            chipsHtml += '<span class="meta-chip halal" title="Halal">✓ Halal</span>';
+            chipsHtml += '<span class="meta-chip halal" title="Halal">' +
+                '<svg width="10" height="10" aria-hidden="true" style="flex-shrink:0;"><use href="#ic-tick"/></svg> Halal</span>';
         } else if (fi.is_halal === false) {
             chipsHtml += '<span class="meta-chip not-halal" title="Ikke halal">Ikke halal</span>';
         }
@@ -755,9 +762,9 @@ async function loadMineOrdrer() {
         list.innerHTML =
             '<div class="empty-state">' +
             '<svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-orders"/></svg>' +
-            '<h3>Ingen ordrer endnu</h3>' +
-            '<p>Når du bestiller mad, kan du finde dine kvitteringer her.</p>' +
-            '<button class="btn-cta" onclick="showSection(\'buySection\')">Gå til menuen</button>' +
+            '<h3>Ingen kvitteringer endnu</h3>' +
+            '<p>Bestil din første ret, så samler vi dine kvitteringer her — klar til afhentning.</p>' +
+            '<button class="btn-cta" onclick="showSection(\'buySection\')">Se dagens menu</button>' +
             '</div>';
         return;
     }
@@ -863,8 +870,8 @@ async function loadAdminMenuForDate() {
         grid.innerHTML =
             '<div class="empty-state">' +
             '<svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-menu"/></svg>' +
-            '<h3>Ingen retter på menuen</h3>' +
-            '<p>Tilføj retter herover for at bygge menuen for valgt dato.</p>' +
+            '<h3>Dagen har endnu ingen retter</h3>' +
+            '<p>Vælg en ret i listen herover og tilføj den — så begynder menuen at tage form.</p>' +
             '</div>';
         return;
     }
@@ -926,8 +933,8 @@ async function loadAdminOrdrer() {
         list.innerHTML =
             '<div class="empty-state">' +
             '<svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-orders"/></svg>' +
-            '<h3>Ingen ordrer i dag</h3>' +
-            '<p>Ordrer vises her, så snart eleverne begynder at bestille.</p>' +
+            '<h3>Stille morgen i kantinen</h3>' +
+            '<p>Ingen ordrer er kommet ind endnu. De dukker op her, så snart første elev trykker bestil.</p>' +
             '</div>';
         return;
     }
@@ -992,8 +999,8 @@ async function loadDiscountView() {
         grid.innerHTML =
             '<div class="empty-state">' +
             '<svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-menu"/></svg>' +
-            '<h3>Ingen menu i dag</h3>' +
-            '<p>Tilføj retter til dagens menu, før du kan sætte rabatter.</p>' +
+            '<h3>Menuen er tom</h3>' +
+            '<p>Rabatter sættes pr. ret — tilføj først retter til dagens menu.</p>' +
             '</div>';
         return;
     }
