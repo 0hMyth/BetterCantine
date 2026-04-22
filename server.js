@@ -103,19 +103,9 @@ app.get('/api/stats/sales', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-// Kører hvert minut: når kantinen lige er lukket (efter kl. 13:45),
-// annulleres alle betalte ordrer som ikke blev afhentet. lastCancelDate
-// sikrer at vi kun gør det én gang pr. dag.
-const CANCEL_CHECK_INTERVAL_MS = 60 * 1000;
-let lastCancelDate = null;
-setInterval(async () => {
-    if (!servicelag.erKantinenAaben() && servicelag.erReservationsperiode()) {
-        const dato = servicelag.getDatoIdag();
-        if (lastCancelDate !== dato) {
-            lastCancelDate = dato;
-            await servicelag.annullerIkkeAfhentedeOrdrer();
-        }
-    }
-}, CANCEL_CHECK_INTERVAL_MS);
+// Når kantinen lige er lukket (efter kl. 13:45) annulleres alle betalte ordrer
+// som ikke blev afhentet. På Vercel håndteres det af api/cron.js som kaldes
+// via Vercel Cron Jobs (se vercel.json). Lokalt kan man starte serveren og
+// hit'e /api/cron manuelt med den rigtige Authorization-header.
 
 app.listen(port, () => { console.log('BetterCantine kører på port ' + port); });
