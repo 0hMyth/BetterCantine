@@ -3,62 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BetterCantine</title>
+    <title>BetterCantine — smartere frokost</title>
+    <meta name="description" content="BetterCantine — bestil din frokost fra mobilen og spring køen over.">
+    <meta name="theme-color" content="#2E7D32">
+
+    <!-- Preconnect + Inter font (replaces Segoe UI) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
     <link rel="stylesheet" href="styles.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="main.js" defer></script>
 </head>
 <body>
 
+<!-- Inline SVG logo sprite (reusable via <use>) -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;">
+    <defs>
+        <!-- Brand logo: fork + "B" motif in a rounded square -->
+        <symbol id="bc-logo" viewBox="0 0 48 48">
+            <rect x="1" y="1" width="46" height="46" rx="12" fill="#2E7D32"/>
+            <!-- Fork tines -->
+            <path d="M14 10 v10 M18 10 v10 M22 10 v10" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+            <!-- Fork handle -->
+            <path d="M14 20 h8 v4 a4 4 0 0 1 -4 4 h0 a4 4 0 0 1 -4 -4 z" fill="#FFFFFF"/>
+            <path d="M18 28 v10" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- "B" letter -->
+            <path d="M28 14 h6 a4 4 0 0 1 0 8 h-6 z M28 22 h7 a4 4 0 0 1 0 8 h-7 z M28 14 v16"
+                  stroke="#FF6F00" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </symbol>
+        <!-- Nav icons -->
+        <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></symbol>
+        <symbol id="ic-buy" viewBox="0 0 24 24"><path d="M6 7h12l-1.5 10a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2L6 7z M9 7a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="ic-reserve" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 10h16 M9 3v4 M15 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <symbol id="ic-orders" viewBox="0 0 24 24"><path d="M6 4h10l4 4v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M8 12h8 M8 16h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+        <symbol id="ic-profile" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M4 20c1-4 5-6 8-6s7 2 8 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+        <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12 M18 6l-12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+        <!-- Empty state illustrations -->
+        <symbol id="empty-menu" viewBox="0 0 200 140">
+            <rect x="30" y="30" width="140" height="90" rx="12" fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2"/>
+            <circle cx="70" cy="68" r="14" fill="#D5F0DB"/>
+            <rect x="95" y="58" width="60" height="6" rx="3" fill="#C9D6E2"/>
+            <rect x="95" y="70" width="40" height="6" rx="3" fill="#D8DFE8"/>
+            <path d="M60 95h80" stroke="#D8DFE8" stroke-width="2" stroke-linecap="round"/>
+            <path d="M60 105h50" stroke="#D8DFE8" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="empty-orders" viewBox="0 0 200 140">
+            <path d="M50 40h80l18 20v55a8 8 0 0 1-8 8H50a8 8 0 0 1-8-8V48a8 8 0 0 1 8-8z"
+                  fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M130 40l18 20h-18z" fill="#D5DEE8"/>
+            <path d="M60 78h70 M60 92h60 M60 106h40" stroke="#C9D6E2" stroke-width="3" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="empty-stats" viewBox="0 0 200 140">
+            <rect x="30" y="30" width="140" height="90" rx="12" fill="#E8EEF4" stroke="#C9D6E2" stroke-width="2"/>
+            <rect x="50" y="80" width="18" height="28" rx="3" fill="#C9D6E2"/>
+            <rect x="76" y="65" width="18" height="43" rx="3" fill="#B8C5D6"/>
+            <rect x="102" y="85" width="18" height="23" rx="3" fill="#C9D6E2"/>
+            <rect x="128" y="55" width="18" height="53" rx="3" fill="#A8B7CC"/>
+            <path d="M45 108h110" stroke="#7A8A9E" stroke-width="2" stroke-linecap="round"/>
+        </symbol>
+    </defs>
+</svg>
+
 <!-- AUTH SECTION -->
 <div id="authSection">
-    <h2 id="authTitle">Log ind</h2>
-    <div id="signupFields" class="hidden">
-        <input type="text" id="fullNameInput" placeholder="Fulde navn">
+    <div class="auth-brand">
+        <svg class="auth-logo" width="56" height="56" aria-hidden="true"><use href="#bc-logo"/></svg>
+        <h2 id="authTitle">Log ind</h2>
+        <p class="auth-tagline">BetterCantine — smartere frokost</p>
     </div>
-    <input type="email" id="emailInput" placeholder="Email">
-    <input type="password" id="passwordInput" placeholder="Adgangskode">
+    <div id="signupFields" class="hidden">
+        <label for="fullNameInput" class="sr-only">Fulde navn</label>
+        <input type="text" id="fullNameInput" placeholder="Fulde navn" autocomplete="name">
+    </div>
+    <label for="emailInput" class="sr-only">Email</label>
+    <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
+    <label for="passwordInput" class="sr-only">Adgangskode</label>
+    <input type="password" id="passwordInput" placeholder="Adgangskode" autocomplete="current-password">
     <button class="auth-btn" id="authBtn" onclick="handleAuth()">Log ind</button>
-    <div class="toggle-link" id="toggleAuth" onclick="toggleAuthMode()">Har du ingen konto? Opret en her</div>
-    <div id="authError"></div>
+    <div class="toggle-link" id="toggleAuth" onclick="toggleAuthMode()" role="button" tabindex="0">Har du ingen konto? Opret en her</div>
+    <div id="authError" role="alert" aria-live="polite"></div>
 </div>
 
 <!-- APP (hidden until logged in) -->
 <div id="appSection" class="hidden">
     <header>
-        <h1>BetterCantine</h1>
+        <div class="brand-mark">
+            <svg class="brand-logo" width="36" height="36" aria-hidden="true"><use href="#bc-logo"/></svg>
+            <div class="brand-text">
+                <h1>BetterCantine</h1>
+                <span class="brand-tagline">smartere frokost</span>
+            </div>
+        </div>
         <div class="user-info">
             <span id="userNameDisplay"></span>
             <span id="userRoleDisplay"></span>
-            <button onclick="logOut()">Log ud</button>
+            <button onclick="logOut()" aria-label="Log ud af kontoen">Log ud</button>
         </div>
     </header>
 
-    <nav id="navBar">
-        <button onclick="showSection('buySection')" class="active" data-section="buySection">Køb</button>
-        <button onclick="showSection('reserveSection')" data-section="reserveSection">Reserver</button>
-        <button onclick="showSection('ordrerSection')" data-section="ordrerSection">Mine ordrer</button>
+    <nav id="navBar" aria-label="Hovednavigation">
+        <button onclick="showSection('buySection')" class="active" data-section="buySection">
+            <svg class="nav-icon" width="18" height="18" aria-hidden="true"><use href="#ic-buy"/></svg>
+            <span>Køb</span>
+        </button>
+        <button onclick="showSection('reserveSection')" data-section="reserveSection">
+            <svg class="nav-icon" width="18" height="18" aria-hidden="true"><use href="#ic-reserve"/></svg>
+            <span>Reservér</span>
+        </button>
+        <button onclick="showSection('ordrerSection')" data-section="ordrerSection">
+            <svg class="nav-icon" width="18" height="18" aria-hidden="true"><use href="#ic-orders"/></svg>
+            <span>Mine ordrer</span>
+        </button>
     </nav>
 
     <div id="mainContent">
 
         <!-- BUY SECTION (canteen open) -->
         <div id="buySection" class="section active">
-            <div class="info-bar" id="buyStatusBar"></div>
-            <h2 class="section-title" id="buyTitle">Køb - Dagens menu</h2>
+            <div class="info-bar" id="buyStatusBar" aria-live="polite"></div>
+            <h2 class="section-title" id="buyTitle">Køb — dagens menu</h2>
             <!-- Shown when canteen is closed -->
             <div id="buyClosedMsg" class="closed-message hidden">
-                <div class="closed-icon">&#10060;</div>
+                <svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-menu"/></svg>
                 <h3>Kantinen er lukket</h3>
-                <p>Kantinen har åbent mellem 07:00 og 13:45. Besøg <a href="#" onclick="showSection('reserveSection');return false;">reservation-siden</a> hvis du gerne vil reservere mad til i morgen.</p>
+                <p>Kantinen har åbent mellem 07:00 og 13:45. Besøg <a href="#" onclick="showSection('reserveSection');return false;">reservationssiden</a>, hvis du gerne vil reservere mad til i morgen.</p>
             </div>
             <!-- Shown when canteen is open -->
             <div id="buyContent" class="hidden">
-                <div id="buyCategoryTabs" class="menu-category-tabs"></div>
+                <div id="buyCategoryTabs" class="menu-category-tabs" role="tablist" aria-label="Kategorier"></div>
                 <div class="menu-split-layout">
                     <div class="menu-item-list" id="buyItemList"></div>
-                    <div class="menu-detail-panel" id="buyDetailPanel">
-                        <div class="detail-placeholder">Hold musen over en ret for at se detaljer</div>
+                    <div class="menu-detail-panel" id="buyDetailPanel" aria-live="polite">
+                        <div class="detail-placeholder">Peg på en ret for at se detaljer</div>
                     </div>
                 </div>
             </div>
@@ -66,21 +144,21 @@
 
         <!-- RESERVE SECTION (canteen closed / reservation period) -->
         <div id="reserveSection" class="section">
-            <div class="info-bar" id="reserveStatusBar"></div>
-            <h2 class="section-title" id="reserveTitle">Reserver - Menu for i morgen</h2>
+            <div class="info-bar" id="reserveStatusBar" aria-live="polite"></div>
+            <h2 class="section-title" id="reserveTitle">Reservér — menu for i morgen</h2>
             <!-- Shown when canteen is open (no reservation needed) -->
             <div id="reserveOpenMsg" class="closed-message hidden">
-                <div class="closed-icon" style="filter:hue-rotate(100deg);">&#9989;</div>
-                <h3>Kantinen er åben lige nu!</h3>
-                <p>Du kan købe mad direkte. Gå til <a href="#" onclick="showSection('buySection');return false;">køb-siden</a> for at bestille.</p>
+                <svg class="empty-illustration" width="200" height="140" aria-hidden="true"><use href="#empty-menu"/></svg>
+                <h3>Kantinen er åben lige nu</h3>
+                <p>Du kan købe mad direkte. Gå til <a href="#" onclick="showSection('buySection');return false;">købssiden</a> for at bestille.</p>
             </div>
             <!-- Shown when reservation is possible -->
             <div id="reserveContent" class="hidden">
-                <div id="reserveCategoryTabs" class="menu-category-tabs"></div>
+                <div id="reserveCategoryTabs" class="menu-category-tabs" role="tablist" aria-label="Kategorier"></div>
                 <div class="menu-split-layout">
                     <div class="menu-item-list" id="reserveItemList"></div>
-                    <div class="menu-detail-panel" id="reserveDetailPanel">
-                        <div class="detail-placeholder">Hold musen over en ret for at se detaljer</div>
+                    <div class="menu-detail-panel" id="reserveDetailPanel" aria-live="polite">
+                        <div class="detail-placeholder">Peg på en ret for at se detaljer</div>
                     </div>
                 </div>
             </div>
@@ -94,16 +172,19 @@
 
         <!-- ADMIN: Manage Menu -->
         <div id="adminMenuSection" class="section">
-            <h2 class="section-title">Administrer menu</h2>
+            <h2 class="section-title">Administrér menu</h2>
             <div class="admin-card">
-                <h3>Tilføj item til dagens menu</h3>
+                <h3>Tilføj ret til dagens menu</h3>
+                <label for="adminMenuDate" class="sr-only">Vælg dato</label>
                 <input type="date" id="adminMenuDate">
-                <div id="adminCategoryTabs" style="margin: 10px 0; display: flex; gap: 6px; flex-wrap: wrap;"></div>
+                <div id="adminCategoryTabs" style="margin: 10px 0; display: flex; gap: 6px; flex-wrap: wrap;" role="tablist" aria-label="Kategori-filter"></div>
+                <label for="adminFoodSelect" class="sr-only">Vælg ret</label>
                 <select id="adminFoodSelect"></select>
+                <label for="adminQuantity" class="sr-only">Antal</label>
                 <input type="number" id="adminQuantity" placeholder="Antal" min="1" value="10">
                 <button onclick="adminTilfoejMenu()">Tilføj</button>
             </div>
-            <h3 style="margin: 20px 0 10px; color: var(--text);">Menu for valgt dato:</h3>
+            <h3 style="margin: 20px 0 10px; color: var(--text);">Menu for valgt dato</h3>
             <div id="adminMenuGrid"></div>
         </div>
 
@@ -127,7 +208,7 @@
             <div class="stats-controls">
                 <!-- Row 1: Period + Date picker -->
                 <div class="stats-controls-row">
-                    <div class="stats-period-btns">
+                    <div class="stats-period-btns" role="group" aria-label="Vælg periode">
                         <span style="color:var(--text-muted);font-size:0.9em;margin-right:6px;font-weight:500;">Periode:</span>
                         <button class="stats-period-btn active" data-days="1" onclick="setStatsPeriod(1,this)">1 dag</button>
                         <button class="stats-period-btn" data-days="7" onclick="setStatsPeriod(7,this)">1 uge</button>
@@ -164,7 +245,7 @@
             <!-- Item selector -->
             <div class="stats-selector">
                 <div class="stats-selector-header">
-                    <h3>Vælg items at vise</h3>
+                    <h3>Vælg retter der skal vises</h3>
                     <div>
                         <button class="stats-btn stats-btn-sm" onclick="selectAllItems()">Vælg alle</button>
                         <button class="stats-btn stats-btn-sm stats-btn-reset" onclick="resetItemSelection()">Nulstil</button>
@@ -186,14 +267,72 @@
     </div>
 </div>
 
+<!-- BOTTOM TAB-BAR (mobile only) -->
+<nav id="bottomTabBar" class="bottom-tab-bar hidden" aria-label="Mobilnavigation">
+    <button data-section="buySection" onclick="showSection('buySection')" class="active" aria-label="Gå til køb">
+        <svg width="22" height="22" aria-hidden="true"><use href="#ic-buy"/></svg>
+        <span>Køb</span>
+    </button>
+    <button data-section="reserveSection" onclick="showSection('reserveSection')" aria-label="Gå til reservation">
+        <svg width="22" height="22" aria-hidden="true"><use href="#ic-reserve"/></svg>
+        <span>Reservér</span>
+    </button>
+    <button data-section="ordrerSection" onclick="showSection('ordrerSection')" aria-label="Gå til mine ordrer">
+        <svg width="22" height="22" aria-hidden="true"><use href="#ic-orders"/></svg>
+        <span>Ordrer</span>
+    </button>
+</nav>
+
 <!-- CART BAR -->
-<div id="cartBar">
+<div id="cartBar" role="region" aria-label="Indkøbskurv">
     <div>
         <span class="cart-info" id="cartInfo">0 varer</span>
         &mdash;
-        <span class="cart-total" id="cartTotal">0.00 DKK</span>
+        <span class="cart-total" id="cartTotal">0,00 DKK</span>
     </div>
-    <button onclick="placeOrder()">Betal &amp; bestil</button>
+    <button onclick="placeOrder()">Betal og bestil</button>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer" class="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ONBOARDING OVERLAY (first-time only) -->
+<div id="onboarding" class="onboarding hidden" role="dialog" aria-modal="true" aria-labelledby="onbTitle">
+    <div class="onboarding-card">
+        <button class="onboarding-skip" id="onbSkipBtn" aria-label="Spring introduktion over">Spring over</button>
+        <div class="onboarding-slide" data-slide="0">
+            <svg width="96" height="96" aria-hidden="true"><use href="#bc-logo"/></svg>
+            <h2 id="onbTitle">Velkommen til BetterCantine</h2>
+            <p>Bestil, reservér og afhent din frokost — alt fra din mobil.</p>
+        </div>
+        <div class="onboarding-slide hidden" data-slide="1">
+            <svg width="140" height="120" viewBox="0 0 140 120" aria-hidden="true">
+                <rect x="40" y="20" width="60" height="90" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+                <circle cx="70" cy="100" r="4" fill="#2E7D32"/>
+                <path d="M55 45h30 M55 55h22 M55 70h18" stroke="#2E7D32" stroke-width="3" stroke-linecap="round"/>
+                <path d="M108 60l14 0 M108 55l14 5 -14 5" stroke="#FF6F00" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2>Spring køen over</h2>
+            <p>Bestil fra mobilen og hent maden direkte i kantinen med din kvitteringskode.</p>
+        </div>
+        <div class="onboarding-slide hidden" data-slide="2">
+            <svg width="140" height="120" viewBox="0 0 140 120" aria-hidden="true">
+                <circle cx="70" cy="60" r="40" fill="#FFF3E0" stroke="#FF6F00" stroke-width="2"/>
+                <path d="M55 62l10 10 20 -22" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2>Klar? Bestil din første ret</h2>
+            <p>Du kan altid se allergener, priser og rabatter direkte i menuen.</p>
+        </div>
+        <div class="onboarding-dots" aria-hidden="true">
+            <span class="dot active" data-dot="0"></span>
+            <span class="dot" data-dot="1"></span>
+            <span class="dot" data-dot="2"></span>
+        </div>
+        <div class="onboarding-actions">
+            <button class="onboarding-back hidden" id="onbBackBtn">Tilbage</button>
+            <button class="onboarding-next" id="onbNextBtn">Næste</button>
+        </div>
+    </div>
 </div>
 
 </body>
