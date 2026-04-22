@@ -1,17 +1,12 @@
-// ════════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════════
+// STATE (globale variabler)
 let currentUser = null;
 let currentProfil = null;
 let cart = [];
 let isSignUp = false;
-let menuData = null;
 let lastFocusedBeforeModal = null; // for focus-return after modal closes
 
-// ════════════════════════════════════════════════════════
-// DANISH COPYWRITING HELPERS
-// ════════════════════════════════════════════════════════
-// Map English category names from DB -> Danish UI labels
+// Hjælpe-funktioner til dansk tekst
+// Oversætter engelske kategorinavne fra databasen til danske UI-labels
 const CATEGORY_DA = {
     'Main': 'Hovedret',
     'Drink': 'Drikkevare',
@@ -24,13 +19,13 @@ function daCategory(name) {
     return CATEGORY_DA[name] || name;
 }
 
-// DKK price helper (Danish format with comma)
+// Dansk pris-format med komma
 function formatPrice(amount) {
     var n = Number(amount) || 0;
     return n.toFixed(2).replace('.', ',') + ' DKK';
 }
 
-// Friendlier Danish error messages for common server errors
+// Oversæt tekniske fejl til forståelige danske beskeder
 function friendlyError(msg) {
     if (!msg) return 'Noget gik galt. Prøv igen.';
     var m = String(msg).toLowerCase();
@@ -42,14 +37,12 @@ function friendlyError(msg) {
     return msg;
 }
 
-// ════════════════════════════════════════════════════════
-// TOAST SYSTEM (replaces alert / confirm)
-// ════════════════════════════════════════════════════════
+// TOAST-beskeder — erstatter alert()
 function showToast(message, variant, title) {
     var container = document.getElementById('toastContainer');
     if (!container) return;
     variant = variant || 'info';
-    // Monoline branded glyphs — not stock single-char emojis
+    // SVG-ikoner frem for emojis så rendering er konsistent på tværs af OS'er
     var iconMarkup = {
         success: '<svg width="12" height="12" aria-hidden="true"><use href="#ic-tick"/></svg>',
         error:   '<span aria-hidden="true">!</span>',
@@ -78,7 +71,7 @@ function showToast(message, variant, title) {
     return toast;
 }
 
-// Promise-based confirm (replaces confirm())
+// Bekræft-dialog som promise — erstatter confirm()
 function askConfirm(message, confirmLabel, cancelLabel) {
     return new Promise(function(resolve) {
         var overlay = document.createElement('div');
@@ -113,9 +106,7 @@ function askConfirm(message, confirmLabel, cancelLabel) {
     });
 }
 
-// ════════════════════════════════════════════════════════
-// AUTH
-// ════════════════════════════════════════════════════════
+// LOGIN + OPRET KONTO
 function toggleAuthMode() {
     isSignUp = !isSignUp;
     document.getElementById('authTitle').textContent = isSignUp ? 'Opret konto' : 'Log ind';
@@ -163,9 +154,7 @@ function logOut() {
     if (btb) btb.classList.add('hidden');
 }
 
-// ════════════════════════════════════════════════════════
-// CART CLICK DELEGATION + keyboard activation
-// ════════════════════════════════════════════════════════
+// Event-delegation til kurv-knapper + tastatur-genveje
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('mainContent').addEventListener('click', function(e) {
         if (e.target.classList.contains('cart-btn')) {
@@ -202,9 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initOnboarding();
 });
 
-// ════════════════════════════════════════════════════════
-// ONBOARDING (3 slides, shown once per browser)
-// ════════════════════════════════════════════════════════
+// ONBOARDING — 3 slides, vises kun ved første login
 var onboardingIndex = 0;
 function initOnboarding() {
     var next = document.getElementById('onbNextBtn');
@@ -248,9 +235,7 @@ function finishOnboarding() {
     if (overlay) overlay.classList.add('hidden');
 }
 
-// ════════════════════════════════════════════════════════
-// APP INIT
-// ════════════════════════════════════════════════════════
+// APP-START
 function enterApp() {
     document.getElementById('authSection').classList.add('hidden');
     document.getElementById('appSection').classList.remove('hidden');
@@ -286,9 +271,7 @@ function enterApp() {
     showOnboardingIfFirstTime();
 }
 
-// ════════════════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════════════════
+// NAVIGATION mellem sektioner
 function showSection(sectionId) {
     document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
     document.getElementById(sectionId).classList.add('active');
@@ -304,9 +287,7 @@ function showSection(sectionId) {
     if (sectionId === 'adminStatsSection') initStatsPanel();
 }
 
-// ════════════════════════════════════════════════════════
-// LOADING SKELETONS
-// ════════════════════════════════════════════════════════
+// SKELETON-LOADERS
 function renderSkeletonList(containerId, count) {
     var c = document.getElementById(containerId);
     if (!c) return;
@@ -322,9 +303,7 @@ function renderSkeletonList(containerId, count) {
     }
 }
 
-// ════════════════════════════════════════════════════════
-// STUDENT: BUY & RESERVE SECTIONS
-// ════════════════════════════════════════════════════════
+// ELEV: KØB + RESERVÉR
 var buyMenuData = null;
 var reserveMenuData = null;
 var activeBuyCategory = null;
@@ -395,7 +374,7 @@ function getMenuDataForMode(mode) {
     return mode === 'buy' ? buyMenuData : reserveMenuData;
 }
 
-// Escape text to prevent HTML injection when rendering dynamic strings
+// Escape HTML så brugerinput ikke kan køre som kode
 function escapeHtml(s) {
     return String(s == null ? '' : s)
         .replace(/&/g, '&amp;')
@@ -667,9 +646,7 @@ function updateCartBar() {
     } else { bar.style.display = 'none'; }
 }
 
-// ════════════════════════════════════════════════════════
-// PLACE ORDER
-// ════════════════════════════════════════════════════════
+// AFGIV BESTILLING
 async function placeOrder() {
     if (cart.length === 0) return;
     var isReservation = (reserveMenuData && reserveMenuData.erReservation) || false;
@@ -689,9 +666,7 @@ async function placeOrder() {
     }
 }
 
-// ════════════════════════════════════════════════════════
-// RECEIPT MODAL (Esc-close + focus-trap + focus-return)
-// ════════════════════════════════════════════════════════
+// KVITTERINGS-MODAL med Escape, focus-trap og focus-return
 function showReceiptModal(code, total, isRes) {
     lastFocusedBeforeModal = document.activeElement;
     var overlay = document.createElement('div');
@@ -749,9 +724,7 @@ function showReceiptModal(code, total, isRes) {
     showToast(isRes ? 'Din reservation er gemt.' : 'Din bestilling er betalt.', 'success');
 }
 
-// ════════════════════════════════════════════════════════
 // MINE ORDRER
-// ════════════════════════════════════════════════════════
 async function loadMineOrdrer() {
     var list = document.getElementById('ordrerList');
     var skelTimer = setTimeout(function() { renderSkeletonList('ordrerList', 3); }, 150);
@@ -792,9 +765,7 @@ async function loadMineOrdrer() {
     });
 }
 
-// ════════════════════════════════════════════════════════
-// ADMIN: MANAGE MENU
-// ════════════════════════════════════════════════════════
+// ADMIN: ADMINISTRÉR MENU
 var allFoodItems = [];
 var adminSelectedCategory = null;
 
@@ -919,9 +890,7 @@ async function adminTilfoejMenu() {
     await loadAdminMenuForDate();
 }
 
-// ════════════════════════════════════════════════════════
-// ADMIN: ALL ORDERS
-// ════════════════════════════════════════════════════════
+// ADMIN: ALLE ORDRER
 async function loadAdminOrdrer() {
     var list = document.getElementById('adminOrdrerList');
     var dato = new Date().toISOString().split('T')[0];
@@ -976,9 +945,7 @@ async function markPickedUp(ordreId) {
     loadAdminOrdrer();
 }
 
-// ════════════════════════════════════════════════════════
-// ADMIN: DISCOUNTS
-// ════════════════════════════════════════════════════════
+// ADMIN: RABATTER
 async function loadDiscountView() {
     var grid = document.getElementById('discountGrid');
     grid.innerHTML = '';
@@ -1034,9 +1001,7 @@ async function setDiscount(dailyMenuId) {
     loadDiscountView();
 }
 
-// ════════════════════════════════════════════════════════
-// STATISTICS PANEL (D3.js charts)
-// ════════════════════════════════════════════════════════
+// STATISTIK-PANEL (D3.js-grafer)
 var statsRawData = [];
 var statsDailyOrders = {};
 var statsSelectedItems = {};
@@ -1045,7 +1010,7 @@ var statsAllItems = [];
 var statsPeriodDays = 7;
 var statsCustomDate = null;
 
-// New palette aligned with brand (green + orange + complementary data-viz hues)
+// Farvepalet til grafer — grøn + orange + komplementære farver
 var STATS_COLORS = [
     '#2E7D32', '#FF6F00', '#1565C0', '#8E24AA', '#00838F',
     '#6D4C41', '#C62828', '#F9A825', '#558B2F', '#283593',
@@ -1632,9 +1597,7 @@ function renderSummary() {
     });
 }
 
-// ════════════════════════════════════════════════════════
-// FETCH HELPER
-// ════════════════════════════════════════════════════════
+// FETCH-HJÆLPER
 async function fetchJSON(url, method, body) {
     var opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);

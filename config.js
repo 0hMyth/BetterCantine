@@ -1,7 +1,5 @@
-// denne fil sætter klient-objekt op -
-// forbindelse til supabase-tjenesten
-// anvender adresse til supa-projekt
-// samt hemmelig nøgle dertil, placeret i .env-fil
+// Opretter Supabase-klienten. URL + service-role-key læses fra .env,
+// så nøglen aldrig havner i git.
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -13,5 +11,3 @@ const supabase = createClient(
 );
 
 export { supabase };
-
-// anvendes i datalag-funktioner som taler med Supabase-databasen

@@ -1,6 +1,10 @@
 import datalag from './cantineDatalag.js';
 
-// laget imellem præsentationslag (routing) og datalag
+// Laget imellem præsentationslag (routing) og datalag.
+
+// Kantinen har åbent 07:00–13:45. Værdierne er antal minutter siden midnat.
+const AABNINGSTID_MIN = 7 * 60;            // 07:00
+const LUKKETID_MIN    = 13 * 60 + 45;      // 13:45
 
 async function signUp(email, password, fullName) {
     return await datalag.signUp(email, password, fullName);
@@ -27,16 +31,12 @@ function getMinsSinceMidnight() {
 
 function erKantinenAaben() {
     const mins = getMinsSinceMidnight();
-    return mins >= 7 * 60 && mins < 13 * 60 + 45;
+    return mins >= AABNINGSTID_MIN && mins < LUKKETID_MIN;
 }
 
 function erReservationsperiode() {
     const mins = getMinsSinceMidnight();
-    return mins >= 13 * 60 + 45 || mins < 7 * 60;
-}
-
-function erKantinenLukket() {
-    return false;
+    return mins >= LUKKETID_MIN || mins < AABNINGSTID_MIN;
 }
 
 async function hentMenu() {
@@ -46,8 +46,7 @@ async function hentMenu() {
     return {
         menu: menu || [],
         dato: dato,
-        erReservation: reservation,
-        erLukket: false
+        erReservation: reservation
     };
 }
 
@@ -191,6 +190,6 @@ export default {
     tilføjTilDagensMenu, opdaterDiscount, fjernFraDagensMenu,
     opretOrdre, hentMineOrdrer, hentAlleOrdrer, opdaterOrdreStatus,
     hentKategorier, getDatoIdag, getDatoIMorgen,
-    erReservationsperiode, erKantinenAaben, erKantinenLukket,
+    erReservationsperiode, erKantinenAaben,
     hentSalgsStatistik, annullerIkkeAfhentedeOrdrer
 };

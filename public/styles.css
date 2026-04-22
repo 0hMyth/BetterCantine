@@ -5,12 +5,12 @@
    ============================================================ */
 
 :root {
-    /* Neutral surfaces — warm-tinted, not flat white */
+    /* Neutrale overflader */
     --white: #ffffff;
-    --bg: #F4F6F3;         /* slightly green-tinted to avoid white-on-white AI-tell */
+    --bg: #F4F6F3;         /* let baggrunden være lidt grøntonet, ikke flad hvid */
     --bg-alt: #EDF1EA;     /* complementary warm neutral */
     --card: #ffffff;
-    --paper: #FBFCF8;      /* off-white for subtle card variation */
+    --paper: #FBFCF8;      /* svagt off-white til kort */
 
     /* Brand — extended green scale (5 shades, not just 3) */
     --green-50:  #F1F8F1;
@@ -68,14 +68,14 @@
     --shadow-hover: 0 4px 12px rgba(27, 94, 32, 0.10), 0 8px 22px rgba(17, 24, 39, 0.06);
     --shadow-accent: 0 6px 18px rgba(255, 111, 0, 0.18);
 
-    /* Radius — deliberately off-round, not pure 12 */
+    /* Border-radii */
     --radius-xs: 5px;
     --radius-sm: 9px;
     --radius: 13px;
     --radius-lg: 18px;
     --radius-pill: 999px;
 
-    /* Type-scale — 1.25 modular scale rooted at 15px (off 16/14 AI-default) */
+    /* Type-scale — 1.25 modular skala, 15px som base */
     --fs-xs:   12px;
     --fs-sm:   15px;
     --fs-base: 15px;
@@ -108,7 +108,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    /* Subtle off-white gradient — breaks the flat white-on-white AI default */
+    /* To bløde radial-gradienter giver baggrunden lidt liv */
     background:
         radial-gradient(1200px 600px at 12% -10%, rgba(46, 125, 50, 0.05), transparent 60%),
         radial-gradient(900px 500px at 110% 10%, rgba(255, 111, 0, 0.04), transparent 55%),
@@ -160,7 +160,7 @@ header {
     justify-content: space-between;
     align-items: center;
     box-shadow: var(--shadow-md);
-    /* Off-balance border: thicker green left + thin orange hairline bottom */
+    /* Gradient-streg i bunden af header som brand-accent */
     border-bottom: 1px solid var(--border-light);
     position: relative;
 }
@@ -176,7 +176,7 @@ header::after {
 .brand-mark {
     display: flex;
     align-items: center;
-    gap: 14px;  /* 12px was AI-default */
+    gap: 14px;
 }
 .brand-logo {
     flex-shrink: 0;
@@ -190,7 +190,7 @@ header::after {
     font-size: var(--fs-md);
     color: var(--green-700);
     font-weight: 700;
-    letter-spacing: -0.018em;   /* tighter than AI-default -0.01em */
+    letter-spacing: -0.018em;
     line-height: var(--lh-tight);
     font-feature-settings: "ss01", "cv11";
 }
@@ -200,7 +200,7 @@ header::after {
     color: var(--text-muted);
     font-weight: 500;
     margin-top: 2px;
-    letter-spacing: 0.06em;     /* wider — feels like a crafted label, not AI-default */
+    letter-spacing: 0.06em;     /* bredt mellemrum så tagline ligner en label */
     text-transform: uppercase;
 }
 header .user-info {
@@ -227,19 +227,18 @@ header button:hover { background: var(--green-dark); }
 /* ── AUTH SECTION ──────────────────────────────────────── */
 
 #authSection {
-    max-width: 416px;   /* off-420 */
-    margin: 76px auto 40px;   /* asymmetric vertical: more space above than below */
+    max-width: 416px;
+    margin: 76px auto 40px;
     background: var(--white);
-    /* Breathing-room: 44px top (generous for logo), 36px bottom — not symmetric */
     padding: 44px 38px 36px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
-    border-top: 4px solid var(--green-500);
     position: relative;
     overflow: hidden;
 }
 #authSection::before {
-    /* Subtle corner-glow texture — replaces flat white */
+    /* Subtle corner-glow texture — replaces flat white, and carries brand accent
+       without a hard top-border (which clashes with rounded corners) */
     content: '';
     position: absolute;
     top: -60px; right: -80px;
@@ -433,7 +432,6 @@ nav#navBar .nav-icon { flex-shrink: 0; }
         radial-gradient(200px 120px at 50% 0%, var(--green-50), transparent 70%),
         var(--white);
     border-radius: var(--radius-lg);
-    /* Breathing room: top 48 (generous for illustration), bottom 34 */
     padding: 48px 32px 34px;
     text-align: center;
     border: 1px solid var(--border-light);
@@ -734,7 +732,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     border-radius: var(--radius-pill);
     font-size: 0.7em;
     font-weight: 700;
-    letter-spacing: 0.08em;   /* loose tracking for UPPERCASE micro-label */
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     box-shadow: var(--shadow-accent);
 }
@@ -800,7 +798,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 /* ── LOADING SKELETONS ─────────────────────────────────── */
 
 .skeleton {
-    /* Warm-tinted shimmer — not a grey blob */
+    /* Svagt skær på skeleton-loaders */
     background: linear-gradient(
         100deg,    /* not 90deg — slightly tilted */
         #EEF2EC 0%,
@@ -909,7 +907,6 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .receipt-card {
     background: var(--white);
     border-radius: var(--radius);
-    /* Asymmetric: breathing on top + more right for code-area */
     padding: 22px 24px 20px 22px;
     border: 1px solid var(--border);
     margin-bottom: 16px;
@@ -953,7 +950,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     border-radius: 50%;
     background: currentColor;
     opacity: 0.7;
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.25);  /* soft ring — anti-AI-default */
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
 }
 .status-reserved { background: #FFF8E1; color: #7A5D00; }
 .status-paid { background: var(--green-light); color: var(--green-dark); }
@@ -965,7 +962,6 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .admin-card {
     background: var(--white);
     border-radius: var(--radius);
-    /* Asymmetric: 22 top (breathing room), 18 bottom, 20/22 sides */
     padding: 22px 22px 18px 20px;
     border: 1px solid var(--border);
     margin-bottom: 14px;
@@ -1013,12 +1009,22 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .admin-order-card {
     background: var(--white);
     border-radius: var(--radius-sm);
-    padding: 16px;
+    padding: 16px 16px 16px 18px;
     margin-bottom: 10px;
-    border-left: 4px solid var(--green);
+    border: 1px solid var(--border-light);
     box-shadow: 0 2px 6px var(--shadow);
+    position: relative;
 }
-.admin-order-card.reservation { border-left-color: var(--warning); }
+/* Hairline accent hugs the border-radius instead of a thick side-slab. */
+.admin-order-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 10px; bottom: 10px;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--green-400);
+}
+.admin-order-card.reservation::before { background: var(--warning); }
 
 /* ── STATUS BAR ────────────────────────────────────────── */
 
@@ -1061,7 +1067,6 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .modal {
     background: var(--white);
     border-radius: var(--radius-lg);
-    /* Asymmetric padding: 40 top, 32 bottom, 36 horizontal — more space at top for breathing */
     padding: 40px 36px 32px;
     max-width: 500px;
     width: 100%;
@@ -1371,26 +1376,36 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     border-radius: var(--radius);
     /* Left-heavier padding — numeric value hugs left, label floats right-ish */
     padding: 16px 16px 18px 20px;
-    text-align: left;    /* was centre — left-align breaks the AI-default */
+    text-align: left;
     border: 1px solid var(--border-light);
-    border-left: 3px solid var(--green-400);
+    position: relative;
     transition: transform var(--dur-med) var(--ease-out-soft), box-shadow var(--dur-med) var(--ease-out-soft);
+}
+/* Small dot in the corner replaces the thick border-left slab. */
+.stats-summary-card::after {
+    content: '';
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green-400);
+    opacity: 0.8;
 }
 .stats-summary-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 /* Rotate the accent-colour through the cards so they aren't all identical */
-.stats-summary-card:nth-child(2) { border-left-color: var(--accent-500); }
-.stats-summary-card:nth-child(3) { border-left-color: var(--green-700); }
-.stats-summary-card:nth-child(4) { border-left-color: var(--blue);       }
+.stats-summary-card:nth-child(2)::after { background: var(--accent-500); }
+.stats-summary-card:nth-child(3)::after { background: var(--green-700); }
+.stats-summary-card:nth-child(4)::after { background: var(--blue);      }
 .stats-summary-card .label {
     color: var(--text-muted);
     font-size: var(--fs-xs);
     margin-bottom: 6px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.09em;    /* generous tracking — crafted, not AI-default */
+    letter-spacing: 0.09em;
 }
 .stats-summary-card .value {
     color: var(--green-700);
@@ -1438,7 +1453,6 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .toast {
     pointer-events: auto;
     background: var(--white);
-    border-left: 4px solid var(--green);
     border-radius: var(--radius-sm);
     padding: 14px 44px 14px 18px;
     box-shadow: 0 8px 24px var(--shadow-lg);
@@ -1450,12 +1464,21 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     color: var(--text);
     font-size: 0.92em;
     position: relative;
+    overflow: hidden;
     animation: toast-in 0.25s ease-out;
 }
-.toast.toast-success { border-left-color: var(--green); }
-.toast.toast-error { border-left-color: var(--danger); }
-.toast.toast-info { border-left-color: var(--blue); }
-.toast.toast-warning { border-left-color: var(--warning); }
+/* Inner-top hairline — reads as an accent without the thick side-slab. */
+.toast::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: 2px;
+    background: var(--green);
+}
+.toast.toast-success::before { background: var(--green); }
+.toast.toast-error::before { background: var(--danger); }
+.toast.toast-info::before { background: var(--blue); }
+.toast.toast-warning::before { background: var(--warning); }
 .toast-icon {
     flex-shrink: 0;
     width: 20px;
@@ -1578,7 +1601,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
 .onboarding-card {
     background: var(--white);
     border-radius: var(--radius-lg);
-    max-width: 432px;        /* off-440 */
+    max-width: 432px;
     width: 100%;
     /* Asymmetric: more room at top for illustration, less at bottom near dots */
     padding: 44px 32px 24px;
@@ -1590,7 +1613,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     animation: modal-in var(--dur-med) var(--ease-out-soft);
 }
 .onboarding-card::before {
-    /* Subtle corner wash — anti-flat-white */
+    /* Hjørne-gradient som blødt baggrunds-element */
     content: '';
     position: absolute;
     top: -60px; left: -80px;
@@ -1699,4 +1722,7 @@ nav#navBar .nav-icon { flex-shrink: 0; }
     .stats-summary-card { min-width: unset; }
     .modal { padding: 28px 22px; }
     #cartBar { padding: 12px 16px; }
+    /* Bigger touch-targets for finger-tap (WCAG 2.5.5 — min. 44px) */
+    .menu-item-row .quantity-ctrl button { width: 44px; height: 44px; font-size: 1.15em; }
+    .toast-close { width: 36px; height: 36px; }
 }

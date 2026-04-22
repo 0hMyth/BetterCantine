@@ -6,7 +6,7 @@ import servicelag from './cantineServicelag.js';
 app.use(express.static('public'));
 app.use(express.json());
 
-// AUTH ROUTES
+// AUTH-ROUTES
 app.post('/api/signup', async (req, res) => {
     try {
         const { email, password, fullName } = req.body;
@@ -25,7 +25,7 @@ app.post('/api/signin', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-// MENU ROUTES
+// MENU-ROUTES
 app.get('/api/menu', async (req, res) => {
     try { res.json(await servicelag.hentMenu()); }
     catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
@@ -67,7 +67,7 @@ app.post('/api/menu/discount', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-// ORDRE ROUTES
+// ORDRE-ROUTES
 app.post('/api/ordre', async (req, res) => {
     try {
         const { userId, items, isReservation } = req.body;
@@ -94,7 +94,7 @@ app.post('/api/ordre/status', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-// STATISTIK ROUTES
+// STATISTIK-ROUTES
 app.get('/api/stats/sales', async (req, res) => {
     try {
         const { from, to } = req.query;
@@ -103,7 +103,10 @@ app.get('/api/stats/sales', async (req, res) => {
     } catch (err) { console.log(err); res.status(500).json({ error: 'Server fejl' }); }
 });
 
-// Auto-cancel unpicked orders when canteen closes (13:45)
+// Kører hvert minut: når kantinen lige er lukket (efter kl. 13:45),
+// annulleres alle betalte ordrer som ikke blev afhentet. lastCancelDate
+// sikrer at vi kun gør det én gang pr. dag.
+const CANCEL_CHECK_INTERVAL_MS = 60 * 1000;
 let lastCancelDate = null;
 setInterval(async () => {
     if (!servicelag.erKantinenAaben() && servicelag.erReservationsperiode()) {
@@ -113,6 +116,6 @@ setInterval(async () => {
             await servicelag.annullerIkkeAfhentedeOrdrer();
         }
     }
-}, 60 * 1000);
+}, CANCEL_CHECK_INTERVAL_MS);
 
 app.listen(port, () => { console.log('BetterCantine kører på port ' + port); });
