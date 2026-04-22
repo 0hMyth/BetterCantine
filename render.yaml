@@ -1,0 +1,18 @@
+# Render deployment-konfiguration.
+# Når repoet er forbundet til Render, læser Render denne fil og
+# opretter servicen automatisk. Husk at sætte SUPABASE_URL og
+# SUPABASE_KEY under "Environment" i Render-dashboardet.
+services:
+  - type: web
+    name: bettercantine
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: NODE_VERSION
+        value: 20

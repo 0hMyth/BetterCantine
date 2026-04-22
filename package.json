@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "keywords": [],
@@ -15,5 +17,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0"
   },
-  "description": "BetterCantine - kantinebestilling med 3-lags-model og relationel db i 3NF"
+  "description": "BetterCantine - kantinebestilling med 3-lags-model og relationel db i 3NF",
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
 }

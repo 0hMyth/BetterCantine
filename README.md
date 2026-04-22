@@ -74,3 +74,26 @@ npm start
 - Administrer menu: tilføj food items med antal til en dato
 - Se alle ordrer og marker dem som afhentet
 - Sæt rabat: vælg hvor mange af hver vare der er til rabatpris
+
+## Deployment til Render
+
+Appen er klar til at køre på [Render](https://render.com) via en gratis
+web service. Render er valgt fremfor fx Vercel fordi `server.js` bruger
+`setInterval` til automatisk at annullere ikke-afhentede ordrer - det
+kræver en vedvarende Node-proces, ikke en serverless-funktion.
+
+1. Push `komit-redesign`-branchen til GitHub.
+2. Log ind på Render, vælg "New > Web Service" og forbind GitHub-repoet.
+3. Render læser `render.yaml` og foreslår følgende konfiguration:
+   - Build command: `npm install`
+   - Start command: `node server.js`
+   - Node-version: 20
+4. Under "Environment" tilføjes to secrets:
+   - `SUPABASE_URL` = URL fra Supabase > Settings > API
+   - `SUPABASE_KEY` = service_role-nøglen fra samme side
+5. Klik "Create Web Service". Første build tager et par minutter.
+6. Når deployet er grønt, kører appen på `https://bettercantine.onrender.com`
+   (eller det subdomain, Render tildeler).
+
+Serveren lytter automatisk på `process.env.PORT` så Render kan route
+HTTP-trafik korrekt.
